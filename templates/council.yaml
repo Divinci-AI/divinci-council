@@ -25,6 +25,13 @@ models:
     type: hermes
     # Uses the current Hermes session model (Kimi K2.6, etc.)
 
+  cursor_agent:
+    type: cursor
+    cli_path: /Users/mikeumus/.local/bin/cursor-agent
+    # The Cursor can also use any model backend for reasoning
+    reasoning_model: ollama_local
+    notes: "Code review, refactoring, architecture deliberation"
+
   anthropic:
     type: api
     provider: anthropic
@@ -44,7 +51,7 @@ personas:
   leonardo:
     model: ollama_local
     temperature: 0.9
-    notes: "Renaissance analogies need high creativity"
+    notes: "Renaissance analogies need high creativity. Also contributes architectural insights."
 
   archivist:
     model: hermes_native
@@ -53,7 +60,7 @@ personas:
   gemma4:
     model: ollama_local
     temperature: 0.85
-    notes: "Local model brings open-weights perspective"
+    notes: "Local model brings open-weights perspective. Edge case hunter."
 
   growthhacker:
     model: opencode_cloud
@@ -61,7 +68,7 @@ personas:
 
   thoughtleader:
     model: opencode_cloud
-    notes: "Structured reasoning for LinkedIn long-form"
+    notes: "Structured reasoning for LinkedIn long-form and strategic analysis"
 
   veodirector:
     model: hermes_native
@@ -74,13 +81,67 @@ personas:
 
   brand_guardian:
     model: hermes_native
-    notes: "Consistency checking, best with deep reasoning model"
+    notes: "Consistency checking, best with deep reasoning model. Security gatekeeper."
+
+  cursor:
+    model: cursor_agent
+    notes: "Code review, refactoring, architecture. Speaks in diffs and line numbers."
+    # For pure reasoning without cursor-agent CLI, set model: ollama_local or hermes_native
 
 # Content quota per source article
 content_quota:
   tweets: 7
   linkedin_posts: 2
   veo_scripts: 3
+
+# Coding workflow configuration
+coding:
+  enabled: true
+  # Directories to include in code reviews
+  review_paths:
+    - ./src
+    - ./scripts
+    - ./lib
+  # File patterns to review
+  review_patterns:
+    - "*.py"
+    - "*.js"
+    - "*.ts"
+    - "*.go"
+    - "*.rs"
+  # Security-sensitive patterns to flag
+  security_patterns:
+    - "eval("
+    - "exec("
+    - "os.system"
+    - "subprocess.call"
+    - "password"
+    - "token"
+    - "api_key"
+  # The Cursor's review depth
+  review_depth: comprehensive  # quick | standard | comprehensive
+  # Auto-invoke The Cursor when code files are modified
+  auto_review_on_change: false
+
+# Self-reflection and continuous improvement
+self_reflection:
+  enabled: true
+  # Trigger self-reflection after N batches
+  trigger_after_batches: 5
+  # Trigger self-reflection after N code reviews
+  trigger_after_code_reviews: 3
+  # Output directory for meta-review reports
+  output_dir: ./meta_review
+  # Questions the council asks itself
+  questions:
+    - "What patterns are emerging in our outputs?"
+    - "Which personas are most/least effective?"
+    - "Where are we wasting tokens or time?"
+    - "What would make our users' lives easier?"
+    - "Are our coding reviews catching real issues?"
+    - "What new methodologies should we explore?"
+  # Save reflection outputs as markdown
+  format: markdown
 
 # Brand voice rules
 brand:

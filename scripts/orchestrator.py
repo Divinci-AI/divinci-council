@@ -96,7 +96,7 @@ def ollama_generate(prompt: str, system: str, model_config: dict) -> str:
 
 
 def opencode_generate(prompt: str, system: str, model_config: dict) -> str:
-    """Call opencode CLI."""
+    """Shell out to opencode CLI."""
     model = model_config.get("model", "opencode/deepseek-v4-flash-free")
     cmd = ["opencode", "run", "--model", model, "--non-interactive"]
 
@@ -118,6 +118,48 @@ def opencode_generate(prompt: str, system: str, model_config: dict) -> str:
         return ""
     except FileNotFoundError:
         log("opencode CLI not found. Install: npm install -g opencode", "ERROR")
+        return ""
+
+
+def cursor_generate(prompt: str, system: str, model_config: dict) -> str:
+    """Delegate to cursor-agent CLI for task execution, or use reasoning model for review."""
+    cli_path = model_config.get("cli_path", "cursor-agent")
+    reasoning_model = model_config.get("reasoning_model", "ollama_local")
+    
+    # Check if cursor-agent is available
+    try:
+        result = subprocess.run([cli_path, "--version"], capture_output=True, text=True, timeout=5)
+        if result.returncode != 0:
+            log(f"cursor-agent not available at {cli_path}, falling back to reasoning model", "WARN")
+            # Fall back to reasoning model
+            models = model_config.get("_all_models", {})
+            if reasoning_model in models:
+                return generate_with_backend(prompt, system, models[reasoning_model], models)
+            return ""
+    except FileNotFoundError:
+        log(f"cursor-agent not found at {cli_path}, falling back to reasoning model", "WARN")
+        models = model_config.get("_all_models", {})
+        if reasoning_model in models:
+            return generate_with_backend(prompt, system, models[reasoning_model], models)
+        return ""
+
+    # cursor-agent is available — use it for task execution
+    full_prompt = f"{system}\n\n{prompt}" if system else prompt
+    try:
+        result = subprocess.run(
+            [cli_path, "--task", full_prompt],
+            capture_output=True,
+            text=True,
+            timeout=model_config.get("timeout", 180),
+        )
+        if result.returncode != 0:
+            log(f"cursor-agent stderr: {result.stderr}", "WARN")
+        return result.stdout
+    except subprocess.TimeoutExpired:
+        log("cursor-agent timed out", "ERROR")
+        return ""
+    except Exception as e:
+        log(f"cursor-agent error: {e}", "ERROR")
         return ""
 
 
@@ -245,6 +287,10 @@ def generate_with_backend(prompt: str, system: str, persona_key: str, config: di
         return ollama_generate(prompt, system, model_config)
     elif backend_type == "opencode":
         return opencode_generate(prompt, system, model_config)
+    elif backend_type == "cursor":
+        # Pass all models for fallback
+        model_config["_all_models"] = models
+        return cursor_generate(prompt, system, model_config)
     elif backend_type == "api":
         return api_generate(prompt, system, model_config)
     elif backend_type == "hermes":
@@ -744,21 +790,148 @@ Word Count: {article_data['word_count']}
     return bundle
 
 
+# ────────────────────────────────────────────────────────────────────────────────────
+# CODING WORKFLOWS (v3.0)
+# ────────────────────────────────────────────────────────────────────────────────────
+
+def run_code_review(file_paths: list, config: dict) -> dict:
+    """Run The Cursor code review on a list of files."""
+    log("Running code review with The Cursor...")
+    review_results = {}
+
+    for filepath in file_paths:
+        p = Path(filepath)
+        if not p.exists():
+            log(f"File not found: {filepath}", "WARN")
+            continue
+
+        code = p.read_text(encoding="utf-8")
+        language = p.suffix.lstrip(".") or "unknown"
+
+        system = "You are The Cursor, a precision code review instrument. Review code for bugs, security, performance, and maintainability."
+        prompt = f"""FILE: {filepath}
+LANGUAGE: {language}
+CONTEXT: Review this code for the Divinci Council project.
+
+CODE:
+```
+{code}
+```
+
+Check for:
+1. Bugs and logic errors
+2. Security vulnerabilities (injection, traversal, secrets exposure)
+3. Performance issues
+4. Maintainability and readability
+5. Missing error handling
+6. Type safety
+7. Test coverage gaps
+
+For each issue, provide:
+- Line number(s)
+- Severity: CRITICAL / WARNING / SUGGESTION
+- Explanation in plain English
+- Proposed fix (if applicable)
+
+Rate the code 1-5 overall.
+"""
+        result = generate_with_backend(prompt, system, "cursor", config, "code_review")
+        review_results[filepath] = result
+        log(f"Reviewed: {filepath}")
+
+    return review_results
+
+
+def run_meta_review(config: dict) -> dict:
+    """Run self-reflection: council reviews its own skill repository."""
+    log("Running meta-review: council reviews itself...")
+
+    skill_dir = Path(__file__).parent.parent
+    files_to_review = []
+    for pattern in ["**/*.md", "**/*.py", "**/*.yaml"]:
+        files_to_review.extend(skill_dir.glob(pattern))
+
+    file_list = "\n".join([str(f.relative_to(skill_dir)) for f in files_to_review[:20]])
+
+    system = "You are the Divinci Council conducting a meta-review of your own skill repository."
+    prompt = f"""You are the Divinci Council reviewing your own skill repository.
+
+FILES TO REVIEW:
+{file_list}
+
+For each file, assess:
+1. Purpose clarity: Does this file do what it says?
+2. Completeness: What's missing?
+3. Maintainability: Will this make sense in 6 months?
+4. Portability: Can this be used in other projects?
+5. Safety: Are there any risks or failure modes?
+
+Then, as a council, deliberate:
+- What should we add?
+- What should we remove?
+- What should we refactor?
+- What new methodologies should we explore?
+
+Each council member contributes from their lens:
+- Leonardo: Structural elegance
+- Archivist: Historical patterns
+- Gemma4: Accessibility for newcomers
+- Growth Hacker: Efficiency and ROI
+- Thought Leader: Strategic alignment
+- VEO Director: Visual clarity
+- Sir Spamalot: Voice consistency
+- Brand Guardian: Quality gates and failure modes
+- The Cursor: Technical debt and security
+
+Output a prioritized improvement plan with specific file references.
+"""
+    result = generate_with_backend(prompt, system, "brand_guardian", config, "meta_review")
+
+    meta_dir = Path(config.get("self_reflection", {}).get("output_dir", "./meta_review"))
+    meta_dir.mkdir(parents=True, exist_ok=True)
+    meta_path = meta_dir / f"meta_review_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.md"
+    meta_path.write_text(f"# Divinci Council Meta-Review\n\n{result}\n", encoding="utf-8")
+    log(f"Meta-review saved: {meta_path}")
+
+    return {"report": result, "path": str(meta_path)}
+
+
+# ────────────────────────────────────────────────────────────────────────────────────
+# MAIN
+# ────────────────────────────────────────────────────────────────────────────────────
+
 def main():
-    parser = argparse.ArgumentParser(description="Divinci Council Orchestrator v2.0")
+    parser = argparse.ArgumentParser(description="Divinci Council Orchestrator v3.0")
     parser.add_argument("--batch", help="Process only this batch ID (e.g., 001)")
     parser.add_argument("--dry-run", action="store_true", help="Show what would be done without generating")
     parser.add_argument("--deliberate", action="store_true", help="Enable peer review deliberation round")
     parser.add_argument("--show-integration", action="store_true", help="Generate show notes alongside content")
     parser.add_argument("--config", default="council.yaml", help="Path to council.yaml config")
+    parser.add_argument("--meta-review", action="store_true", help="Run self-reflection: council reviews its own repository")
+    parser.add_argument("--code-review", nargs="+", metavar="FILE", help="Run The Cursor code review on specified files")
     args = parser.parse_args()
 
-    log("Divinci Council Orchestrator v2.0")
+    log("Divinci Council Orchestrator v3.0")
     log(f"Config: {args.config}")
 
     config = load_config(args.config)
-    catalog = load_catalog()
     ensure_dirs(config)
+
+    # Handle meta-review mode
+    if args.meta_review:
+        result = run_meta_review(config)
+        log(f"Meta-review complete. Report saved to: {result['path']}")
+        return
+
+    # Handle code review mode
+    if args.code_review:
+        results = run_code_review(args.code_review, config)
+        log("Code review complete. Results:")
+        for filepath, review in results.items():
+            log(f"  {filepath}: {len(review)} chars of review output")
+        return
+
+    catalog = load_catalog()
 
     # Load persona definitions from config or fallback to built-in
     # For v2.0, personas should be defined in the config or loaded from a separate personas.json

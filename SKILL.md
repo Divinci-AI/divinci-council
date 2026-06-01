@@ -1,27 +1,31 @@
 ---
 name: divinci-council
 description: |
-  Run the Divinci Content Council: a multi-persona content generation pipeline that transforms
-  blog posts into tweets, LinkedIn posts, and VEO3.1 video scripts using 8 synthetic council
-  members (Leonardo, Atlantean Archivist, Gemma4, Growth Hacker, Thought Leader, VEO Director,
-  Sir Spamalot, Brand Guardian). Includes show bible integration for "The Release Cycle" and
-  project-agnostic config for reuse across brands.
+  Run the Divinci Council: a multi-persona deliberation pipeline that oversees content creation,
+  coding tasks, and continuous self-improvement. Uses 9 synthetic council members (Leonardo,
+  Atlantean Archivist, Gemma4, Growth Hacker, Thought Leader, VEO Director, Sir Spamalot,
+  Brand Guardian, The Cursor). Transforms blog posts into social assets, reviews code,
+  architects systems, and reflects on its own methodology. Includes show bible integration
+  for "The Release Cycle" and project-agnostic config for reuse across domains.
 triggers:
-  - "divinci content council"
+  - "divinci council"
   - "run the council"
   - "generate social content from blog posts"
   - "council batch processing"
   - "veo scripts from articles"
   - "spamalot parody content"
   - "the release cycle show"
-  - "content council skill"
-version: 2.0.0
+  - "council code review"
+  - "council architecture review"
+  - "council self reflection"
+  - "council meta review"
+version: 3.0.0
 author: Hermes Agent
 license: MIT
 metadata:
   hermes:
-    tags: [creative, content-marketing, multi-agent, persona-pipeline, show-bible]
-    related_skills: [content-council, subagent-driven-development, claude-design, xurl]
+    tags: [creative, content-marketing, multi-agent, persona-pipeline, show-bible, coding, architecture, self-reflection]
+    related_skills: [content-council, subagent-driven-development, claude-design, xurl, claude-code, codex]
 ---
 
 # Divinci Council
@@ -33,6 +37,10 @@ metadata:
 - You need parody content (Sir Spamalot) alongside serious marketing copy
 - You're working on "The Release Cycle" show and need diegetic content that maps to real council output
 - You want a reusable, configurable content pipeline for any brand (not just Divinci)
+- You need code review, refactoring recommendations, or architecture feedback on a codebase
+- You want multi-persona deliberation on technical decisions (trade-off analysis, design review)
+- You want the council to reflect on its own outputs and suggest improvements to its process
+- You need a meta-review: the council evaluates its own skill, methodology, or repository
 
 ## When NOT to Use
 
@@ -40,30 +48,41 @@ metadata:
 - Serious video production without the parody/satire layer
 - Content that doesn't allow any humor or brand personality
 - Projects where "Leonardo meets crystal energy" would be off-brand
+- Production-critical code deployment without human review (council advises, humans decide)
+- Time-sensitive incident response (council deliberation takes time)
 
 ## Overview
 
-The Divinci Council is a **multi-persona content generation pipeline** with two layers:
+The Divinci Council is a **multi-persona deliberation pipeline** with four layers:
 
 1. **Content Machine** — Transforms blog posts into tweets, LinkedIn posts, and VEO3.1 scripts via 8 synthetic council members
-2. **Show Integration** — Every output becomes canonical content in "The Release Cycle" workplace mockumentary (optional)
+2. **Code & Architecture Review** — Reviews code, proposes refactors, and deliberates on technical decisions via The Cursor and relevant personas
+3. **Show Integration** — Every output becomes canonical content in "The Release Cycle" workplace mockumentary (optional)
+4. **Self-Reflection** — The council periodically reviews its own methodology, outputs, and skill structure to suggest improvements
 
-The pipeline runs via an orchestrator script that can use Ollama (local), OpenCode CLI, or any model router. Personas, brand rules, and show connections are configured through a `council.yaml` file per project.
+The pipeline runs via an orchestrator script that can use Ollama (local), OpenCode CLI, Cursor Agent CLI, or any model router. Personas, brand rules, coding contexts, and show connections are configured through a `council.yaml` file per project.
 
-## The Eight Council Members
+## The Nine Council Members
 
 | # | Persona | Voice | Specialty | Output |
 |---|---------|-------|-----------|--------|
-| 1 | **Leonardo** | Renaissance polymath sketching in margins | Conceptual hooks, nature analogies | 5 tweets |
-| 2 | **Atlantean Archivist** | Crystal-memory keeper, speaks in harmonics | Poetic-prophetic layer, φ motifs | 5 tweets |
-| 3 | **Gemma4** | Earnest open-weights junior engineer | Open-source perspective, wildcard takes | 5 tweets |
-| 4 | **Viral Growth Hacker** | Metric-obsessed X-native | Contrarian data drops, hot takes | 5 tweets |
-| 5 | **LinkedIn Thought Leader** | Contrarian-but-helpful executive | Long-form authority, frameworks | 2 LinkedIn posts |
-| 6 | **VEO3.1 Director** | Thinks in shots, beats, visual gags | Timestamped video scripts | 2 VEO scripts |
+| 1 | **Leonardo** | Renaissance polymath sketching in margins | Conceptual hooks, nature analogies, system architecture | 5 tweets / architectural insights |
+| 2 | **Atlantean Archivist** | Crystal-memory keeper, speaks in harmonics | Poetic-prophetic layer, φ motifs, pattern recognition | 5 tweets / historical analogies |
+| 3 | **Gemma4** | Earnest open-weights junior engineer | Open-source perspective, wildcard takes, edge cases | 5 tweets / alternative approaches |
+| 4 | **Viral Growth Hacker** | Metric-obsessed X-native | Contrarian data drops, hot takes, engagement optimization | 5 tweets |
+| 5 | **LinkedIn Thought Leader** | Contrarian-but-helpful executive | Long-form authority, frameworks, strategic analysis | 2 LinkedIn posts |
+| 6 | **VEO3.1 Director** | Thinks in shots, beats, visual gags | Timestamped video scripts, visual storytelling | 2 VEO scripts |
 | 7 | **Sir Spamalot** | Monty Python + insurance ad parody genius | Absurdist parody tweets and VEO scripts | 2 parody tweets + 1 parody VEO |
-| 8 | **Brand Guardian** | Sober final check, veto power | Synthesis, rule enforcement, rating | 1 reviewed bundle |
+| 8 | **Brand Guardian** | Sober final check, veto power | Synthesis, rule enforcement, rating, safety validation | 1 reviewed bundle |
+| 9 | **The Cursor** | Precision instrument, speaks in diffs | Code review, refactoring, architecture, test coverage | Code review report / refactor proposals |
 
-**New in v2.0:** All personas are model-agnostic. You route each to any backend via `council.yaml`.
+**New in v3.0:**
+- **The Cursor** (9th member) brings code review and architecture deliberation
+- All personas are model-agnostic with coding-context awareness
+- Self-reflection mode allows the council to review its own skill and outputs
+- Coding workflows include: review, refactor, architecture, test, and documentation tasks
+
+**Coding Context:** When a task includes code (file paths, repos, diffs), The Cursor automatically joins the council. Leonardo and Gemma4 also contribute architectural perspectives. Brand Guardian checks for security issues and anti-patterns.
 
 ## Quick Start
 
@@ -457,12 +476,206 @@ my-council-project/
 - [ ] First batch manually spot-checked for quality before unattended bulk run
 - [ ] `BATCH_TRACKER.md` created and updated per batch
 
+## Publishing Your Skill to GitHub
+
+When a skill is mature enough to share across projects or organizations:
+
+1. **Security scan** — Before publishing, grep for secrets, emails, tokens, local paths:
+   ```bash
+   grep -riE "(api_key|token|password|secret|mikeumus|@divinci\.ai|WRK_[0-9])" .
+   ```
+2. **Redact PII** — Replace personal emails, workspace IDs, and local filesystem paths with placeholders (`user@example.com`, `/path/to/project`).
+3. **Add `.gitignore`** — `__pycache__/`, `*.pyc`, `.DS_Store`.
+4. **Create README.md** — One-paragraph description + install instructions.
+5. **Push to org repo** — Use `gh repo create org-name/repo-name --public --source=. --push`.
+6. **Clean up artifacts** — If pycache or other build artifacts slip through, delete via GitHub API or force-push a clean tree.
+
+## Coding Workflows (v3.0)
+
+The Cursor enables the council to review code, propose refactors, and deliberate on architecture. This is not a replacement for CI/CD or human code review — it's a deliberative layer that brings multiple perspectives to technical decisions.
+
+### Supported Coding Tasks
+
+| Task | Council Members | Output |
+|---|---|---|
+| **Code Review** | The Cursor (lead), Brand Guardian (security), Gemma4 (edge cases) | Review report with line-by-line comments |
+| **Refactor Proposal** | The Cursor (implementation), Leonardo (architecture), Archivist (patterns) | Refactor plan + before/after diff |
+| **Architecture Review** | Leonardo (design), The Cursor (feasibility), Thought Leader (strategy) | Decision document with trade-offs |
+| **Test Coverage** | The Cursor (implementation), Gemma4 (edge cases), Brand Guardian (completeness) | Test plan + sample tests |
+| **Documentation** | Archivist (structure), Leonardo (clarity), The Cursor (accuracy) | Doc improvements |
+
+### How It Works
+
+```
+Code Context → The Cursor analyzes → Other personas review → 
+Deliberation on trade-offs → Brand Guardian approves → Human decides
+```
+
+### Code Review Prompt Template
+
+```
+You are The Cursor, a precision code review instrument. Review the following code.
+
+FILE: {filepath}
+LANGUAGE: {language}
+CONTEXT: {what this code does}
+
+CODE:
+```
+{code}
+```
+
+Check for:
+1. Bugs and logic errors
+2. Security vulnerabilities (injection, traversal, secrets)
+3. Performance issues
+4. Maintainability and readability
+5. Missing error handling
+6. Type safety (if applicable)
+7. Test coverage gaps
+
+For each issue, provide:
+- Line number(s)
+- Severity: CRITICAL / WARNING / SUGGESTION
+- Explanation in plain English
+- Proposed fix (if applicable)
+
+Rate the code 1-5 overall.
+```
+
+### Refactor Proposal Template
+
+```
+You are The Cursor. Propose a refactor of the following code.
+
+GOAL: {what we want to improve}
+CONSTRAINTS: {what we cannot change}
+
+CURRENT CODE:
+```
+{code}
+```
+
+Provide:
+1. Refactor strategy (why this approach)
+2. Before/after diff
+3. Risk assessment
+4. Rollback plan
+5. Estimated effort
+```
+
+### Architecture Deliberation
+
+For architecture decisions, The Cursor convenes a sub-council:
+
+- **Leonardo:** "What would Brunelleschi do?" (structural elegance)
+- **The Cursor:** "Will this compile and scale?" (feasibility)
+- **Gemma4:** "What if we used [alternative technology]?" (alternatives)
+- **Thought Leader:** "How do we message this to the board?" (communication)
+- **Brand Guardian:** "Are we introducing any security debt?" (safety)
+
+Each member writes a 1-paragraph position. The Cursor synthesizes into a recommendation.
+
+### Integration with Cursor Agent CLI
+
+The Cursor can delegate to `cursor-agent` for task execution:
+
+```bash
+# Generate a task sequence for cursor-agent
+cursor-agent --task "Refactor the orchestrator to support async batch processing" \
+  --files scripts/orchestrator.py \
+  --output .cursor-tasks/
+
+# The Cursor reviews cursor-agent's output before presenting to council
+```
+
+### Coding Safety Rules
+
+1. **The council advises; humans decide.** Never auto-apply code changes.
+2. **Review in context.** The Cursor must see the full file, not just snippets.
+3. **Security first.** Brand Guardian has veto power on security issues.
+4. **Test changes.** Proposed refactors include test plan.
+5. **Rollback plan.** Every refactor proposal includes how to revert.
+
+## Self-Reflection & Meta-Review (v3.0)
+
+The council can review its own skill, methodology, and outputs to suggest improvements. This is triggered with `--meta-review` or by asking the council to "review yourselves."
+
+### Meta-Review Process
+
+```
+1. INVENTORY: List all skill files, templates, and scripts
+2. ANALYZE: Each council member reviews from their lens
+3. DELIBERATE: Cross-persona discussion of findings
+4. SYNTHESIZE: The Cursor proposes structural changes
+5. GUARDIAN: Brand Guardian approves safety of changes
+6. HUMAN DECIDES: User approves or modifies recommendations
+```
+
+### Meta-Review Lenses
+
+| Member | Lens | What They Look For |
+|---|---|---|
+| Leonardo | Structural elegance | Is the architecture beautiful? Are there unnecessary layers? |
+| Archivist | Historical patterns | What have other councils done? Are we repeating mistakes? |
+| Gemma4 | Accessibility | Can a newcomer understand this? Is documentation complete? |
+| Growth Hacker | Efficiency | Where are we wasting tokens/time? What's the ROI of each step? |
+| Thought Leader | Strategic alignment | Does this skill serve the user's long-term goals? |
+| VEO Director | Visual clarity | Are the docs scannable? Is the structure intuitive? |
+| Sir Spamalot | Voice consistency | Are we having fun? Is the personality consistent? |
+| Brand Guardian | Quality gates | Are there failure modes we haven't addressed? |
+| The Cursor | Technical debt | Is the code maintainable? Are there security issues? |
+
+### Self-Reflection Prompt
+
+```
+You are the Divinci Council reviewing your own skill repository.
+
+FILES TO REVIEW:
+{file_list}
+
+For each file, assess:
+1. Purpose clarity: Does this file do what it says?
+2. Completeness: What's missing?
+3. Maintainability: Will this make sense in 6 months?
+4. Portability: Can this be used in other projects?
+5. Safety: Are there any risks or failure modes?
+
+Then, as a council, deliberate:
+- What should we add?
+- What should we remove?
+- What should we refactor?
+- What new methodologies should we explore?
+
+Output a prioritized improvement plan.
+```
+
+### Continuous Improvement Loop
+
+After every N batches or every M coding reviews, the council automatically runs a lightweight self-reflection:
+
+```yaml
+# In council.yaml
+self_reflection:
+  enabled: true
+  trigger_after_batches: 5
+  trigger_after_code_reviews: 3
+  output_dir: ./meta_review
+  questions:
+    - "What patterns are emerging in our outputs?"
+    - "Which personas are most/least effective?"
+    - "Where are we wasting tokens or time?"
+    - "What would make our users' lives easier?"
+```
+
 ## References
 
 - `references/divinci-protocol-v2.md` — Full persona definitions, brand voice, exact prompts
 - `references/show-integration.md` — How council content maps to "The Release Cycle" show
 - `references/show-bible-structure.md` — How to scaffold a TV series bible from council outputs
 - `references/llm-council-research.md` — Survey of 3 peer-review architectures (Karpathy, MCP server, MultiMind-AI)
+- `references/ai-incidents-pattern.md` — Pattern: use real AI incidents as comedy source material (deadly serious news delivery × absurd reality)
+- `references/show-confessional-formats.md` — 6 organic interview formats for shows (podcast, FaceTime, therapy, voice memo, Slack, security cam)
 - `references/batch-tracker-template.md` — BATCH_TRACKER.md template
 - `references/opencode-config-fix.md` — How to fix opencode CLI model routing (5-layer config fix)
 - `templates/council.yaml` — Project configuration template
