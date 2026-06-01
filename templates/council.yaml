@@ -1,0 +1,193 @@
+# Project Configuration Template
+# Copy this to your project root as council.yaml and customize.
+---
+
+project_name: "Your Project Name"
+source_domain: "https://example.com/blog"
+
+# Model backends available to personas
+models:
+  ollama_local:
+    type: ollama
+    url: http://localhost:11434/api/generate
+    model: gemma4:latest
+    timeout: 300
+    options:
+      temperature: 0.8
+      num_predict: 4096
+
+  opencode_cloud:
+    type: opencode
+    model: opencode/deepseek-v4-flash-free
+    # For paid: opencode/deepseek-v4-flash (requires billing)
+
+  hermes_native:
+    type: hermes
+    # Uses the current Hermes session model (Kimi K2.6, etc.)
+
+  anthropic:
+    type: api
+    provider: anthropic
+    model: claude-sonnet-4-20250514
+    # Requires ANTHROPIC_API_KEY env var
+
+  openai:
+    type: api
+    provider: openai
+    model: gpt-4o
+    # Requires OPENAI_API_KEY env var
+
+# Council member → model routing
+# Each persona maps to a model backend defined above
+# Optional: per-persona temperature override
+personas:
+  leonardo:
+    model: ollama_local
+    temperature: 0.9
+    notes: "Renaissance analogies need high creativity"
+
+  archivist:
+    model: hermes_native
+    notes: "Poetic-prophetic voice, current session handles this well"
+
+  gemma4:
+    model: ollama_local
+    temperature: 0.85
+    notes: "Local model brings open-weights perspective"
+
+  growthhacker:
+    model: opencode_cloud
+    notes: "Fast cloud model for viral optimization"
+
+  thoughtleader:
+    model: opencode_cloud
+    notes: "Structured reasoning for LinkedIn long-form"
+
+  veodirector:
+    model: hermes_native
+    notes: "Visual scripting needs creative vision"
+
+  sirspamalot:
+    model: ollama_local
+    temperature: 1.0
+    notes: "Higher temp for absurdist parody generation"
+
+  brand_guardian:
+    model: hermes_native
+    notes: "Consistency checking, best with deep reasoning model"
+
+# Content quota per source article
+content_quota:
+  tweets: 7
+  linkedin_posts: 2
+  veo_scripts: 3
+
+# Brand voice rules
+brand:
+  # Words that result in immediate veto
+  forbidden_words:
+    - "revolutionary"
+    - "game-changing"
+    - "disruptive"
+    - "synergy"
+    - "leverage"
+    - "AI-first"
+    - "thought leadership"
+    - "circle back"
+    - "pivot"
+
+  # Visual/thematic motifs that should appear across outputs
+  required_motifs:
+    - "golden spiral"
+    - "crystal lattice"
+    - "solar abundance"
+    - "harmonic resonance"
+
+  # Taglines and key phrases (use sparingly, never force)
+  phrases:
+    - "Excellence, every time"
+    - "The Age of AI Management"
+    - "Notes from the Release Cycle"
+    - "φ = 1.618 / Harmonia"
+
+  # Character visual for art/video direction
+  character_desc: "Young Leonardo da Vinci sketching robots at a cleanroom bench"
+
+  # Overall visual identity
+  visual_identity: "Dark theme with gold accents, sacred geometry overlays"
+
+  # Who we're writing for
+  target_audience: "Technical AI engineers, ML ops practitioners, compliance teams"
+
+  # Tone descriptors
+  tone: "Craftsmanship, mastery, technical depth without hype. Wonder-filled but precise."
+
+  # Color system (for VEO scripts and visual assets)
+  colors:
+    safe: "#00C4B4"      # teal-blue
+    danger: "#FF3366"    # red
+    energy: "#FFD700"    # golden
+    background: "#0A0A0F" # near-black
+
+# Show integration (optional — disable for non-Divinci projects)
+show_integration:
+  enabled: true
+  show_title: "The Release Cycle"
+  faction: "Content Council / Ad Cult"
+
+  # Map council personas to show characters
+  character_mapping:
+    leonardo: "Trevor (Content Strategist)"
+    archivist: "Trevor (channeling Atlantean mode)"
+    gemma4: "The Laptop (literal laptop on table)"
+    growthhacker: "Priya (Growth Lead)"
+    thoughtleader: "Trevor (switching to exec mode)"
+    veodirector: "Dana (Tutorial Director, in visor)"
+    sirspamalot: "Margaret (Marketing, gradually losing grip)"
+    brand_guardian: "Jordan (Brand Manager, forbidden words list)"
+
+  # Generate show artifacts alongside content
+  generate_scenes: true
+  generate_diegetic_posts: true
+  generate_props: true
+
+# Output directories (relative to project root)
+output:
+  articles_dir: ./articles
+  tweets_dir: ./tweets
+  linkedin_dir: ./linkedin
+  veo_dir: ./veo
+  bundles_dir: ./output
+  show_notes_dir: ./show_notes
+
+# Orchestrator behavior
+orchestrator:
+  # Number of personas to generate in parallel (be careful with local Ollama)
+  parallel_personas: 1
+
+  # Enable deliberation (peer review round)
+  enable_deliberation: false
+
+  # Reviewers for deliberation (subset of persona keys)
+  deliberation_reviewers:
+    - brand_guardian
+    - growthhacker
+    - leonardo
+
+  # Cooldown between personas (seconds, to avoid Ollama queue collisions)
+  persona_cooldown: 1
+
+  # Scrape timeout per article
+  scrape_timeout: 30
+
+  # Article content preview length (chars)
+  content_preview_limit: 8000
+
+  # Bundle JSON indentation
+  json_indent: 2
+
+# Logging
+logging:
+  level: INFO
+  file: ./council_run.log
+  format: "%(asctime)s [%(levelname)s] %(message)s"
